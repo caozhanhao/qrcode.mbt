@@ -15,15 +15,15 @@
 // QR Spec: https://files-cdn.cnblogs.com/files/elaron/qr_code.pdf
 
 ///|
-trait ToInt {
+priv trait ToInt {
   to_int(Self) -> Int
 }
 
 ///|
-type EnumArr[T] FixedArray[T]
+priv type EnumArr[T] FixedArray[T]
 
 ///|
-pub fn[T, E : ToInt] EnumArr::op_get(self : EnumArr[T], index : E) -> T {
+fn[T, E : ToInt] EnumArr::op_get(self : EnumArr[T], index : E) -> T {
   self.inner()[index.to_int()]
 }
 

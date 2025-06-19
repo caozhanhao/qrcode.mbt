@@ -13,7 +13,7 @@
 // limitations under the License.
 
 ///|
-struct Pos {
+priv struct Pos {
   mut x : Int
   mut y : Int
 } derive(Show)
@@ -44,7 +44,7 @@ impl Hash for Pos with hash_combine(self, hasher : Hasher) {
 }
 
 ///|
-struct PosBox {
+priv struct PosBox {
   box : Array[Pos]
 }
 
@@ -96,7 +96,7 @@ fn PosBox::fill_data(
 }
 
 ///|
-struct PosSet {
+priv struct PosSet {
   box : Set[Pos]
 }
 
@@ -126,11 +126,4 @@ fn PosSet::add_rect(self : PosSet, p1 : Pos, p2 : Pos) -> Unit {
 ///|
 fn PosSet::contains(self : PosSet, pos : Pos) -> Bool {
   self.box.contains(pos)
-}
-
-///|
-fn PosSet::fill(self : PosSet, vec : Array[Array[Bool]]) -> Unit {
-  for p in self.box {
-    vec[p.x][p.y] = true
-  }
 }

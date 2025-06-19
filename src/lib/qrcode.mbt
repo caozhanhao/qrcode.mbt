@@ -13,7 +13,19 @@
 // limitations under the License.
 
 ///|
-/// Error Correction Level
+/// Error correction level for QR codes, determining the amount of data that can
+/// be recovered if the code is damaged.
+///
+/// Higher error correction levels provide better resilience against damage but
+/// reduce the amount of data that can be stored in the QR code. The `AUTO` level
+/// allows the library to automatically select the highest possible error
+/// correction level based on the data length and version constraints.
+///
+/// * `L`: Low error correction level (~7% recovery capability)
+/// * `M`: Medium error correction level (~15% recovery capability)
+/// * `Q`: Quartile error correction level (~25% recovery capability)
+/// * `H`: High error correction level (~30% recovery capability)
+/// * `AUTO`: Automatically selects the highest possible error correction level
 pub(all) enum ECLevel {
   L
   M
@@ -23,7 +35,17 @@ pub(all) enum ECLevel {
 } derive(Eq)
 
 ///|
-/// Encode Mode
+/// Encoding mode for QR code data, determining how the input data is interpreted
+/// and encoded.
+///
+/// Different modes optimize for different types of input data:
+///
+/// * `NUM` mode is most efficient for numeric data (digits 0-9)
+/// * `ALNUM` mode works well for alphanumeric data (0-9, A-Z, space, and some symbols)
+/// * `BIT8` mode handles arbitrary 8-bit binary data including UTF-8 text
+/// * `KANJI` mode is optimized for Kanji characters in Shift JIS encoding
+///
+/// Warning: `KANJI` mode is still working in progress
 pub(all) enum Mode {
   NUM
   ALNUM
@@ -75,8 +97,17 @@ impl ToInt for Mode with to_int(self : Mode) -> Int {
 }
 
 ///|
-/// QR Code
-/// 
+/// QR code with metadata and encoded data.
+///
+/// Fields:
+///
+/// * `version` : QR code version (1-40), determines the size and data capacity.
+/// * `level` : Error correction level used for encoding.
+/// * `mode` : Data encoding mode used for the input data.
+/// * `mask` : Mask pattern applied (0-7) for optimal readability.
+/// * `qr` : Two-dimensional boolean array representing the QR code modules,
+/// where `true` represents dark modules and `false` represents light modules.
+///
 pub(all) struct QRCode {
   version : Int
   level : ECLevel
@@ -89,15 +120,41 @@ pub(all) struct QRCode {
 /// QR Code Builder
 /// 
 pub(all) struct QRCodeBuilder {
-  version : Int
-  level : ECLevel
-  mode : Mode
-  mut mask : Int
-  function_pattern_pos : PosSet
+  priv version : Int
+  priv level : ECLevel
+  priv mode : Mode
+  priv mut mask : Int
+  priv function_pattern_pos : PosSet
 }
 
 ///|
-/// Specify a QR Mode
+/// Creates a QR code builder with the specified configuration parameters.
+///
+/// Automatically selects optimal version and error correction level based on
+/// data requirements when not explicitly specified. The builder uses intelligent
+/// defaults to ensure the QR code can accommodate the provided data while
+/// maximizing error correction capability.
+///
+/// Parameters:
+///
+/// * `data_length` : The length of the data to be encoded in bytes.
+/// * `version` : The QR code version (1-40) determining size and capacity. Use
+/// -1 for automatic selection based on data length.
+/// * `ec_level` : The error correction level. Use `ECLevel::AUTO` for automatic
+/// selection of the highest possible level.
+/// * `mode` : The encoding mode for the data. Different modes optimize for
+/// different data types.
+/// * `mask` : The mask pattern (0-7) to apply. Use -1 for automatic selection
+/// based on penalty evaluation.
+///
+/// Returns a configured `QRCodeBuilder` ready to generate QR codes.
+///
+/// Throws an error of type `Failure` if:
+///
+/// * No suitable version can accommodate the data length
+/// * No suitable error correction level can be found for the specified version
+/// and data length
+/// * The data is too large for any QR code configuration
 /// 
 pub fn QRCodeBuilder::new(
   data_length~ : Int,
@@ -687,6 +744,25 @@ fn QRCodeBuilder::fill_format_info(
 }
 
 ///|
+/// Generates a complete QR code from input data using the configured builder
+/// settings.
+///
+/// Performs the complete QR code generation process including data encoding,
+/// error correction code generation, data allocation, function pattern filling,
+/// masking, and format information embedding. The function orchestrates all the
+/// internal steps required to transform raw input data into a fully formed QR
+/// code matrix.
+///
+/// Parameters:
+///
+/// * `self` : The configured QR code builder containing version, error
+/// correction level, encoding mode, and other settings.
+/// * `data` : The raw byte data to be encoded into the QR code.
+///
+/// Returns a complete `QRCode` structure containing the generated QR code matrix
+/// and metadata including the version, error correction level, encoding mode,
+/// and mask pattern used.
+///
 pub fn QRCodeBuilder::generate(
   self : QRCodeBuilder,
   data : Array[Byte]

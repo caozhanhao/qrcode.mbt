@@ -13,7 +13,15 @@
 // limitations under the License.
 
 ///|
-/// Format
+/// Format for outputting QR codes in different visual representations.
+///
+/// Constructors:
+///
+/// * `ANSI256` : ANSI 256-color terminal format that renders QR codes using
+/// colored terminal escape sequences
+/// * `JPG` : JPEG image format (not yet implemented)
+/// * `PNG` : PNG image format (not yet implemented)
+///
 pub(all) enum PaintFmt {
   ANSI256
 
@@ -25,7 +33,23 @@ pub(all) enum PaintFmt {
 // TODO, file stream
 
 ///|
-/// 
+/// Renders a QR code to the console or saves it in a specified visual format.
+///
+/// Parameters:
+///
+/// * `self` : The QR code to render.
+/// * `fmt` : The output format for rendering the QR code.
+///
+/// Example:
+///
+/// ```moonbit
+/// test "QRCode::paint" {
+///   let builder = QRCodeBuilder::new(data_length=7)
+///   let qr = builder.generate("moonbit".to_array().map(fn(c) { c.to_int().to_byte() }))
+///   qr.paint(PaintFmt::ANSI256)
+/// }
+/// ```
+///
 pub fn QRCode::paint(self : QRCode, fmt : PaintFmt) -> Unit {
   match fmt {
     ANSI256 =>

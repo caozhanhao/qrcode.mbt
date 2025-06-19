@@ -1,10 +1,10 @@
 {
   "name": "caozhanhao/qrcode",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "readme": "README.md",
   "repository": "https://github.com/caozhanhao/qrcode.mbt",
   "license": "Apache-2.0",
-  "keywords": ["qrcode"],
+  "keywords": ["qrcode", "QR code"],
   "description": "QR Code Generator for MoonBit",
   "source": "src"
 }
