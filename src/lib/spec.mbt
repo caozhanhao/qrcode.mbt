@@ -14,30 +14,30 @@
 
 // QR Spec: https://files-cdn.cnblogs.com/files/elaron/qr_code.pdf
 
-///| Error Correction Block Group
+///| Error Correction Block Group Entry
 /// 
 /// - `nec_block`: Number of block in the group
 /// - `ntotalwords`: Total number of codewords (c)
 /// - `ndatawords`: Number of encoded data codewords (k)
 /// - `nec`: Number of error correction capacity (r)
-pub struct ECBGroup {
+priv struct ECBGroupEntry {
   nec_block: Int
   ntotalwords: Int
   ndatawords: Int
   nec: Int
 }
 
-///| Error Correction Level
+///| Error Correction Entry
 /// 
 /// - `ndatawords`: Number of data codewords
 /// - `capacity`: A symbol's capacity [0] numeric [1] alphanumeric [2] 8bit [3] Kanji
 /// - `necb_group`: Number of the group in `ecb_group`
 /// - `ecb_group`: Error correction block group
-pub struct ECLevel {
+priv struct ECEntry {
   ndatawords : Int
   capacity : FixedArray[Int]
   necb_group : Int
-  ecb_group : FixedArray[ECBGroup]
+  ecb_group : FixedArray[ECBGroupEntry]
 }
 
 ///| QR Information
@@ -49,18 +49,18 @@ pub struct ECLevel {
 /// - `remainder_bits`: Number of remainder bits
 /// - `nccindicator`: Character Count Indicator [0]numeric [1] alphanumeric [2]	8bit [3] Kanji
 /// - `level`: QRLevel [0]L [1]M [2]Q [3]H
-pub struct QRInfo {
+priv struct QRInfoEntry {
   version : Int
   dimension : Int
   totalwords : Int
   remainder_bits : Int
   nccindicator : FixedArray[Int]
-  level : FixedArray[ECLevel]
+  level : FixedArray[ECEntry]
   nalignment_pos : Int
   alignment_pos : FixedArray[Int]
 }
 
-pub let qr_info: FixedArray[QRInfo] = [
+let qr_info: FixedArray[QRInfoEntry] = [
   {
     version: 0,
     dimension: 0,
@@ -1989,7 +1989,7 @@ pub let qr_info: FixedArray[QRInfo] = [
     alignment_pos: [6, 30, 58, 86, 114, 142, 170]
   },
 ]
-pub let exp_to_fac : FixedArray[Int] = [
+let exp_to_fac : FixedArray[Int] = [
   1, 2, 4, 8, 16, 32, 64, 128, 29, 58, 116, 232, 205, 135, 19, 38, 76, 152, 45, 90,
   180, 117, 234, 201, 143, 3, 6, 12, 24, 48, 96, 192, 157, 39, 78, 156, 37, 74, 148,
   53, 106, 212, 181, 119, 238, 193, 159, 35, 70, 140, 5, 10, 20, 40, 80, 160, 93,
@@ -2006,7 +2006,7 @@ pub let exp_to_fac : FixedArray[Int] = [
   247, 243, 251, 235, 203, 139, 11, 22, 44, 88, 176, 125, 250, 233, 207, 131, 27,
   54, 108, 216, 173, 71, 142, 1,
 ]
-pub let fac_to_exp : FixedArray[Int] = [
+let fac_to_exp : FixedArray[Int] = [
   0, 0, 1, 25, 2, 50, 26, 198, 3, 223, 51, 238, 27, 104, 199, 75, 4, 100, 224, 14,
   52, 141, 239, 129, 28, 193, 105, 248, 200, 8, 76, 113, 5, 138, 101, 47, 225, 36,
   15, 33, 53, 147, 142, 218, 240, 18, 130, 69, 29, 181, 194, 125, 106, 39, 249, 185,
@@ -2023,7 +2023,7 @@ pub let fac_to_exp : FixedArray[Int] = [
   81, 11, 245, 22, 235, 122, 117, 44, 215, 79, 174, 213, 233, 230, 231, 173, 232,
   116, 214, 244, 234, 168, 80, 88, 175,
 ]
-pub let generator : FixedArray[FixedArray[Int]] = [
+let generator : FixedArray[FixedArray[Int]] = [
   [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -2396,7 +2396,7 @@ pub let generator : FixedArray[FixedArray[Int]] = [
   ],
 ]
 
-pub let version_info : FixedArray[Int64] = [
+let version_info : FixedArray[Int64] = [
   -1L, -1L, -1L, -1L, -1L, -1L, -1L, 0x07c94L, 0x085bcL, 0x09a99L, 0x0a4d3L, 0x0bbf6L,
   0x0c762L, 0x0d847L, 0x0e60dL, 0x0f928L, 0x10b78L, 0x1145dL, 0x12a17L, 0x13532L,
   0x149a6L, 0x15683L, 0x168c9L, 0x177ecL, 0x18ec4L, 0x191e1L, 0x1afabL, 0x1b08eL,
@@ -2404,7 +2404,7 @@ pub let version_info : FixedArray[Int64] = [
   0x24b0bL, 0x2542eL, 0x26a64L, 0x27541L, 0x28c69L,
 ]
 
-pub let alnum : FixedArray[Int] = [
+let alnum : FixedArray[Int] = [
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 36, -1, -1, -1, 37, 38, -1, -1,
   -1, -1, 39, 40, -1, 41, 42, 43, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 44, -1, -1, -1, -1,
@@ -2419,3 +2419,300 @@ pub let alnum : FixedArray[Int] = [
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 ]
+
+fn make_pdp_pos(dimension : Int) -> PosBox {
+  PosBox::from_array([
+    [0, 0],
+    [1, 0],
+    [2, 0],
+    [3, 0],
+    [4, 0],
+    [5, 0],
+    [6, 0],
+    [0, 1],
+    [0, 2],
+    [0, 3],
+    [0, 4],
+    [0, 5],
+    [0, 6],
+    [6, 1],
+    [6, 2],
+    [6, 3],
+    [6, 4],
+    [6, 5],
+    [6, 6],
+    [1, 6],
+    [2, 6],
+    [3, 6],
+    [4, 6],
+    [5, 6],
+    [2, 2],
+    [3, 2],
+    [4, 2],
+    [2, 3],
+    [3, 3],
+    [4, 3],
+    [2, 4],
+    [3, 4],
+    [4, 4],
+    [0, dimension - 7],
+    [1, dimension - 7],
+    [2, dimension - 7],
+    [3, dimension - 7],
+    [4, dimension - 7],
+    [5, dimension - 7],
+    [6, dimension - 7],
+    [0, dimension - 6],
+    [0, dimension - 5],
+    [0, dimension - 4],
+    [0, dimension - 3],
+    [0, dimension - 2],
+    [0, dimension - 1],
+    [6, dimension - 6],
+    [6, dimension - 5],
+    [6, dimension - 4],
+    [6, dimension - 3],
+    [6, dimension - 2],
+    [6, dimension - 1],
+    [1, dimension - 1],
+    [2, dimension - 1],
+    [3, dimension - 1],
+    [4, dimension - 1],
+    [5, dimension - 1],
+    [2, dimension - 5],
+    [3, dimension - 5],
+    [4, dimension - 5],
+    [2, dimension - 4],
+    [3, dimension - 4],
+    [4, dimension - 4],
+    [2, dimension - 3],
+    [3, dimension - 3],
+    [4, dimension - 3],
+    [dimension - 7, dimension - 7],
+    [dimension - 6, dimension - 7],
+    [dimension - 5, dimension - 7],
+    [dimension - 4, dimension - 7],
+    [dimension - 3, dimension - 7],
+    [dimension - 2, dimension - 7],
+    [dimension - 1, dimension - 7],
+    [dimension - 7, dimension - 6],
+    [dimension - 7, dimension - 5],
+    [dimension - 7, dimension - 4],
+    [dimension - 7, dimension - 3],
+    [dimension - 7, dimension - 2],
+    [dimension - 7, dimension - 1],
+    [dimension - 1, dimension - 6],
+    [dimension - 1, dimension - 5],
+    [dimension - 1, dimension - 4],
+    [dimension - 1, dimension - 3],
+    [dimension - 1, dimension - 2],
+    [dimension - 1, dimension - 1],
+    [dimension - 6, dimension - 1],
+    [dimension - 5, dimension - 1],
+    [dimension - 4, dimension - 1],
+    [dimension - 3, dimension - 1],
+    [dimension - 2, dimension - 1],
+    [dimension - 5, dimension - 5],
+    [dimension - 4, dimension - 5],
+    [dimension - 3, dimension - 5],
+    [dimension - 5, dimension - 4],
+    [dimension - 4, dimension - 4],
+    [dimension - 3, dimension - 4],
+    [dimension - 5, dimension - 3],
+    [dimension - 4, dimension - 3],
+    [dimension - 3, dimension - 3],
+  ])
+}
+
+fn make_timing_pos(dimension : Int) -> PosBox {
+  let posbox = PosBox::new()
+  for i = 8; i <= dimension - 9; i = i + 2 {
+    posbox.add_pos(Pos::new(6, i))
+  }
+  for i = 8; i <= dimension - 9; i = i + 2 {
+    posbox.add_pos(Pos::new(i, dimension - 7))
+  }
+  posbox
+}
+
+fn make_function_pattern_pos(
+  version : Int,
+  dimension : Int,
+  ap : FixedArray[Int],
+  nap : Int
+) -> PosSet {
+  let function_pattern = PosSet::new()
+
+  // Around Alignment Pattern
+  for i in 0..<nap {
+    for j in 0..<nap {
+      if (ap[i] == 6 && ap[j] == 6) ||
+        (ap[i] == 6 && ap[j] == dimension - 7) ||
+        (ap[i] == dimension - 7 && ap[j] == dimension - 7) {
+        continue
+      }
+      function_pattern.add_pos(Pos::new(ap[i], ap[j])) // center
+      for k in -2..=2 {
+        for l in -2..=2 {
+          function_pattern.add_pos(Pos::new(ap[i] + k, ap[j] + l))
+        }
+      }
+    }
+  }
+
+  // Around Position Detection Pattern
+  function_pattern.add_rect(Pos::new(0, 0), Pos::new(7, 7))
+  function_pattern.add_rect(
+    Pos::new(0, dimension - 1),
+    Pos::new(7, dimension - 8),
+  )
+  function_pattern.add_rect(
+    Pos::new(dimension - 8, dimension - 8),
+    Pos::new(dimension - 1, dimension - 1),
+  )
+
+  // Around Timing Pattern
+  function_pattern.add_rect(Pos::new(6, 8), Pos::new(6, dimension - 10))
+  function_pattern.add_rect(
+    Pos::new(9, dimension - 7),
+    Pos::new(dimension - 9, dimension - 7),
+  )
+
+  // Around Format Information
+  function_pattern.add_rect(
+    Pos::new(8, dimension - 1),
+    Pos::new(8, dimension - 9),
+  )
+  function_pattern.add_rect(
+    Pos::new(0, dimension - 9),
+    Pos::new(8, dimension - 9),
+  )
+  function_pattern.add_rect(
+    Pos::new(dimension - 8, dimension - 9),
+    Pos::new(dimension - 1, dimension - 9),
+  )
+  function_pattern.add_rect(Pos::new(8, 0), Pos::new(8, 7))
+
+  // Around Version Infomation(Version >= 7)
+  if version >= 7 {
+    function_pattern.add_rect(Pos::new(0, 8), Pos::new(5, 10))
+    function_pattern.add_rect(
+      Pos::new(dimension - 9, dimension - 1),
+      Pos::new(dimension - 11, dimension - 6),
+    )
+  }
+  function_pattern
+}
+
+fn make_alignment_pos(ap: Array[Int], nap: Int, dimension: Int) -> PosBox {
+  let ap_box = PosBox::new()
+
+  for i in 0..<nap {
+    for j in 0..<nap {
+      if ((ap[i] == 6 && ap[j] == 6)|| (ap[i] == 6 && ap[j] == dimension - 7)|| (ap[i] == dimension - 7 && ap[j] == dimension - 7)) {
+        continue;
+      }
+      else
+      {
+        ap_box.add_pos(Pos::new(ap[i], ap[j]));
+      } //center
+    }
+  }
+
+  for pos in ap_box.box {
+    ap_box.add_rect(Pos::new(pos.x - 2, pos.y + 2),
+      Pos::new(pos.x + 2, pos.y + 2));
+    ap_box.add_rect(Pos::new(pos.x - 2, pos.y + 1),
+      Pos::new(pos.x - 2, pos.y - 2));
+    ap_box.add_rect(Pos::new(pos.x - 1, pos.y - 2),
+      Pos::new(pos.x + 2, pos.y - 2));
+    ap_box.add_rect(Pos::new(pos.x + 2, pos.y - 1),
+      Pos::new(pos.x + 2, pos.y + 1));
+  }
+
+  ap_box;
+}
+
+fn make_format_pos(dimension : Int) -> (PosBox, PosBox) {
+  (
+    PosBox::from_array([
+      [8, dimension - 1],
+      [8, dimension - 2],
+      [8, dimension - 3],
+      [8, dimension - 4],
+      [8, dimension - 5],
+      [8, dimension - 6],
+      [8, dimension - 8],
+      [8, dimension - 9],
+      [7, dimension - 9],
+      [5, dimension - 9],
+      [4, dimension - 9],
+      [3, dimension - 9],
+      [2, dimension - 9],
+      [1, dimension - 9],
+      [0, dimension - 9],
+    ]),
+    PosBox::from_array([
+      [dimension - 1, dimension - 9],
+      [dimension - 2, dimension - 9],
+      [dimension - 3, dimension - 9],
+      [dimension - 4, dimension - 9],
+      [dimension - 5, dimension - 9],
+      [dimension - 6, dimension - 9],
+      [dimension - 7, dimension - 9],
+      [dimension - 8, dimension - 9],
+      [8, 6],
+      [8, 5],
+      [8, 4],
+      [8, 3],
+      [8, 2],
+      [8, 1],
+      [8, 0],
+    ]),
+  )
+}
+
+fn make_version_pos(dimension : Int) -> (PosBox, PosBox) {
+  (
+    PosBox::from_array([
+      [0, 10],
+      [0, 9],
+      [0, 8],
+      [1, 10],
+      [1, 9],
+      [1, 8],
+      [2, 10],
+      [2, 9],
+      [2, 8],
+      [3, 10],
+      [3, 9],
+      [3, 8],
+      [4, 10],
+      [4, 9],
+      [4, 8],
+      [5, 10],
+      [5, 9],
+      [5, 8],
+    ]),
+    PosBox::from_array([
+      [dimension - 11, dimension - 1],
+      [dimension - 10, dimension - 1],
+      [dimension - 9, dimension - 1],
+      [dimension - 11, dimension - 2],
+      [dimension - 10, dimension - 2],
+      [dimension - 9, dimension - 2],
+      [dimension - 11, dimension - 3],
+      [dimension - 10, dimension - 3],
+      [dimension - 9, dimension - 3],
+      [dimension - 11, dimension - 4],
+      [dimension - 10, dimension - 4],
+      [dimension - 9, dimension - 4],
+      [dimension - 11, dimension - 5],
+      [dimension - 10, dimension - 5],
+      [dimension - 9, dimension - 5],
+      [dimension - 11, dimension - 6],
+      [dimension - 10, dimension - 6],
+      [dimension - 9, dimension - 6],
+    ]),
+  )
+}
