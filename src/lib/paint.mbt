@@ -13,6 +13,7 @@
 // limitations under the License.
 
 ///|
+/// Format
 pub(all) enum PaintFmt {
   ANSI256
 
@@ -24,6 +25,7 @@ pub(all) enum PaintFmt {
 // TODO, file stream
 
 ///|
+/// 
 pub fn QRCode::paint(self : QRCode, fmt : PaintFmt) -> Unit {
   match fmt {
     ANSI256 =>

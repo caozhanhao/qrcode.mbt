@@ -13,6 +13,7 @@
 // limitations under the License.
 
 ///|
+/// Error Correction Level
 pub(all) enum ECLevel {
   L
   M
@@ -22,6 +23,7 @@ pub(all) enum ECLevel {
 } derive(Eq)
 
 ///|
+/// Encode Mode
 pub(all) enum Mode {
   NUM
   ALNUM
@@ -84,6 +86,8 @@ pub(all) struct QRCode {
 }
 
 ///|
+/// QR Code Builder
+/// 
 pub(all) struct QRCodeBuilder {
   version : Int
   level : ECLevel
@@ -93,6 +97,8 @@ pub(all) struct QRCodeBuilder {
 }
 
 ///|
+/// Specify a QR Mode
+/// 
 pub fn QRCodeBuilder::new(
   data_length~ : Int,
   version~ : Int = -1,
