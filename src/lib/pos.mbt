@@ -12,19 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+///|
 struct Pos {
-  x : Int
-  y : Int
-}
+  mut x : Int
+  mut y : Int
+} derive(Show)
 
+///|
 fn Pos::new(x : Int, y : Int) -> Pos {
   { x, y }
 }
 
+///|
 impl Eq for Pos with op_equal(p1, p2) {
   p1.x == p2.x && p1.y == p2.y
 }
 
+///|
 impl Compare for Pos with compare(p1 : Pos, p2 : Pos) {
   if p1.x == p2.x {
     Compare::compare(p1.y, p2.y)
@@ -33,34 +37,39 @@ impl Compare for Pos with compare(p1 : Pos, p2 : Pos) {
   }
 }
 
+///|
 impl Hash for Pos with hash_combine(self, hasher : Hasher) {
   hasher.combine(Hash::hash(self.x))
   hasher.combine(Hash::hash(self.y))
 }
 
+///|
 struct PosBox {
   box : Array[Pos]
 }
 
+///|
 fn PosBox::new() -> PosBox {
   { box: Array::new() }
 }
 
+///|
 fn PosBox::from_array(arr : Array[Array[Int]]) -> PosBox {
   let box = arr.map(fn(p) { Pos::new(p[0], p[1]) })
   { box, }
 }
 
+///|
 fn PosBox::add_pos(self : PosBox, p : Pos) -> Unit {
   self.box.push(p)
 }
 
-fn PosBox::add_rect(self: PosBox, p1: Pos, p2: Pos) -> Unit {
+///|
+fn PosBox::add_rect(self : PosBox, p1 : Pos, p2 : Pos) -> Unit {
   let min_x = @math.minimum(p1.x, p2.x)
   let min_y = @math.minimum(p1.y, p2.y)
-  let max_x = @math.maximum(p1.x, p2.x)  
+  let max_x = @math.maximum(p1.x, p2.x)
   let max_y = @math.maximum(p1.y, p2.y)
-  
   for x = min_x; x <= max_x; x = x + 1 {
     for y = min_y; y <= max_y; y = y + 1 {
       self.box.push(Pos::new(x, y))
@@ -68,35 +77,40 @@ fn PosBox::add_rect(self: PosBox, p1: Pos, p2: Pos) -> Unit {
   }
 }
 
-fn PosBox::fill(self : PosBox, vec : Ref[Array[Array[Bool]]]) -> Unit {
+///|
+fn PosBox::fill(self : PosBox, vec : Array[Array[Bool]]) -> Unit {
   for p in self.box {
-    vec.val[p.x][p.y] = true
+    vec[p.x][p.y] = true
   }
 }
 
+///|
 fn PosBox::fill_data(
   self : PosBox,
-  vec : Ref[Array[Array[Bool]]],
+  vec : Array[Array[Bool]],
   data : Array[Bool]
 ) -> Unit {
-  for i in 0..<vec.val.length() {
-    vec.val[self.box[i].x][self.box[i].y] = data[i]
+  for i in 0..<data.length() {
+    vec[self.box[i].x][self.box[i].y] = data[i]
   }
 }
 
+///|
 struct PosSet {
   box : Set[Pos]
 }
 
+///|
 fn PosSet::new() -> PosSet {
   { box: Set::new() }
 }
 
-
+///|
 fn PosSet::add_pos(self : PosSet, p : Pos) -> Unit {
   self.box.add(p)
 }
 
+///|
 fn PosSet::add_rect(self : PosSet, p1 : Pos, p2 : Pos) -> Unit {
   let min_x = @math.minimum(p1.x, p2.x)
   let min_y = @math.minimum(p1.y, p2.y)
@@ -109,12 +123,14 @@ fn PosSet::add_rect(self : PosSet, p1 : Pos, p2 : Pos) -> Unit {
   }
 }
 
+///|
 fn PosSet::contains(self : PosSet, pos : Pos) -> Bool {
   self.box.contains(pos)
 }
 
-fn PosSet::fill(self : PosSet, vec : Ref[Array[Array[Bool]]]) -> Unit {
+///|
+fn PosSet::fill(self : PosSet, vec : Array[Array[Bool]]) -> Unit {
   for p in self.box {
-    vec.val[p.x][p.y] = true
+    vec[p.x][p.y] = true
   }
 }

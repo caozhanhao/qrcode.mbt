@@ -14,6 +14,24 @@
 
 // QR Spec: https://files-cdn.cnblogs.com/files/elaron/qr_code.pdf
 
+///|
+trait ToInt {
+  to_int(Self) -> Int
+}
+
+///|
+type EnumArr[T] FixedArray[T]
+
+///|
+pub fn[T, E : ToInt] EnumArr::op_get(self : EnumArr[T], index : E) -> T {
+  self.inner()[index.to_int()]
+}
+
+///|
+impl ToInt for Int with to_int(self : Int) {
+  self
+}
+
 ///| Error Correction Block Group Entry
 /// 
 /// - `nec_block`: Number of block in the group
@@ -21,10 +39,10 @@
 /// - `ndatawords`: Number of encoded data codewords (k)
 /// - `nec`: Number of error correction capacity (r)
 priv struct ECBGroupEntry {
-  nec_block: Int
-  ntotalwords: Int
-  ndatawords: Int
-  nec: Int
+  nec_block : Int
+  ntotalwords : Int
+  ndatawords : Int
+  nec : Int
 }
 
 ///| Error Correction Entry
@@ -35,7 +53,7 @@ priv struct ECBGroupEntry {
 /// - `ecb_group`: Error correction block group
 priv struct ECEntry {
   ndatawords : Int
-  capacity : FixedArray[Int]
+  capacity : EnumArr[Int]
   necb_group : Int
   ecb_group : FixedArray[ECBGroupEntry]
 }
@@ -49,18 +67,21 @@ priv struct ECEntry {
 /// - `remainder_bits`: Number of remainder bits
 /// - `nccindicator`: Character Count Indicator [0]numeric [1] alphanumeric [2]	8bit [3] Kanji
 /// - `level`: QRLevel [0]L [1]M [2]Q [3]H
+/// - `nalignment_pos`: Number of Alignment Pos
+/// - `alignment_pos`: Alignment Pos
 priv struct QRInfoEntry {
   version : Int
   dimension : Int
   totalwords : Int
   remainder_bits : Int
-  nccindicator : FixedArray[Int]
-  level : FixedArray[ECEntry]
+  nccindicator : EnumArr[Int]
+  level : EnumArr[ECEntry]
   nalignment_pos : Int
   alignment_pos : FixedArray[Int]
 }
 
-let qr_info: FixedArray[QRInfoEntry] = [
+///|
+let qr_info : FixedArray[QRInfoEntry] = [
   {
     version: 0,
     dimension: 0,
@@ -75,7 +96,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 0,
@@ -84,7 +105,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 0,
@@ -93,7 +114,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 0,
@@ -102,11 +123,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 0,
-    alignment_pos: [0, 0, 0, 0, 0, 0, 0]
+    alignment_pos: [0, 0, 0, 0, 0, 0, 0],
   },
   {
     version: 1,
@@ -122,7 +143,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 1, ntotalwords: 26, ndatawords: 19, nec: 2 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 16,
@@ -131,7 +152,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 1, ntotalwords: 26, ndatawords: 16, nec: 4 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 13,
@@ -140,7 +161,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 1, ntotalwords: 26, ndatawords: 13, nec: 6 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 9,
@@ -149,11 +170,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 1, ntotalwords: 26, ndatawords: 9, nec: 8 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 0,
-    alignment_pos: [0, 0, 0, 0, 0, 0, 0]
+    alignment_pos: [0, 0, 0, 0, 0, 0, 0],
   },
   {
     version: 2,
@@ -169,7 +190,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 1, ntotalwords: 44, ndatawords: 34, nec: 4 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 28,
@@ -178,7 +199,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 1, ntotalwords: 44, ndatawords: 28, nec: 8 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 22,
@@ -187,7 +208,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 1, ntotalwords: 44, ndatawords: 22, nec: 11 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 16,
@@ -196,11 +217,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 1, ntotalwords: 44, ndatawords: 16, nec: 14 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 2,
-    alignment_pos: [6, 18, 0, 0, 0, 0, 0]
+    alignment_pos: [6, 18, 0, 0, 0, 0, 0],
   },
   {
     version: 3,
@@ -216,7 +237,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 1, ntotalwords: 70, ndatawords: 55, nec: 7 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 44,
@@ -225,7 +246,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 1, ntotalwords: 70, ndatawords: 44, nec: 13 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 34,
@@ -234,7 +255,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 2, ntotalwords: 35, ndatawords: 17, nec: 9 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 26,
@@ -243,11 +264,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 2, ntotalwords: 35, ndatawords: 13, nec: 11 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 2,
-    alignment_pos: [6, 22, 0, 0, 0, 0, 0]
+    alignment_pos: [6, 22, 0, 0, 0, 0, 0],
   },
   {
     version: 4,
@@ -263,7 +284,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 1, ntotalwords: 100, ndatawords: 80, nec: 10 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 64,
@@ -272,7 +293,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 2, ntotalwords: 50, ndatawords: 32, nec: 9 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 48,
@@ -281,7 +302,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 2, ntotalwords: 50, ndatawords: 24, nec: 13 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 36,
@@ -290,11 +311,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 25, ndatawords: 9, nec: 8 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 2,
-    alignment_pos: [6, 26, 0, 0, 0, 0, 0]
+    alignment_pos: [6, 26, 0, 0, 0, 0, 0],
   },
   {
     version: 5,
@@ -310,7 +331,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 1, ntotalwords: 134, ndatawords: 108, nec: 13 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 86,
@@ -319,7 +340,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 2, ntotalwords: 67, ndatawords: 43, nec: 12 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 62,
@@ -328,7 +349,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 2, ntotalwords: 33, ndatawords: 15, nec: 9 },
           { nec_block: 2, ntotalwords: 34, ndatawords: 16, nec: 9 },
-        ]
+        ],
       },
       {
         ndatawords: 46,
@@ -337,11 +358,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 2, ntotalwords: 33, ndatawords: 11, nec: 11 },
           { nec_block: 2, ntotalwords: 34, ndatawords: 12, nec: 11 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 2,
-    alignment_pos: [6, 30, 0, 0, 0, 0, 0]
+    alignment_pos: [6, 30, 0, 0, 0, 0, 0],
   },
   {
     version: 6,
@@ -357,7 +378,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 2, ntotalwords: 86, ndatawords: 68, nec: 9 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 108,
@@ -366,7 +387,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 43, ndatawords: 27, nec: 8 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 76,
@@ -375,7 +396,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 43, ndatawords: 19, nec: 12 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 60,
@@ -384,11 +405,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 43, ndatawords: 15, nec: 14 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 2,
-    alignment_pos: [6, 34, 0, 0, 0, 0, 0]
+    alignment_pos: [6, 34, 0, 0, 0, 0, 0],
   },
   {
     version: 7,
@@ -404,7 +425,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 2, ntotalwords: 98, ndatawords: 78, nec: 10 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 124,
@@ -413,7 +434,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 49, ndatawords: 31, nec: 9 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 88,
@@ -422,7 +443,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 2, ntotalwords: 32, ndatawords: 14, nec: 9 },
           { nec_block: 4, ntotalwords: 33, ndatawords: 15, nec: 9 },
-        ]
+        ],
       },
       {
         ndatawords: 66,
@@ -431,11 +452,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 39, ndatawords: 13, nec: 13 },
           { nec_block: 1, ntotalwords: 40, ndatawords: 14, nec: 13 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 3,
-    alignment_pos: [6, 22, 38, 0, 0, 0, 0]
+    alignment_pos: [6, 22, 38, 0, 0, 0, 0],
   },
   {
     version: 8,
@@ -451,7 +472,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 2, ntotalwords: 121, ndatawords: 97, nec: 12 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 154,
@@ -460,7 +481,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 2, ntotalwords: 60, ndatawords: 38, nec: 11 },
           { nec_block: 2, ntotalwords: 61, ndatawords: 39, nec: 11 },
-        ]
+        ],
       },
       {
         ndatawords: 110,
@@ -469,7 +490,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 40, ndatawords: 18, nec: 11 },
           { nec_block: 2, ntotalwords: 41, ndatawords: 19, nec: 11 },
-        ]
+        ],
       },
       {
         ndatawords: 86,
@@ -478,11 +499,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 40, ndatawords: 14, nec: 13 },
           { nec_block: 2, ntotalwords: 41, ndatawords: 15, nec: 13 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 3,
-    alignment_pos: [6, 24, 42, 0, 0, 0, 0]
+    alignment_pos: [6, 24, 42, 0, 0, 0, 0],
   },
   {
     version: 9,
@@ -498,7 +519,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 2, ntotalwords: 146, ndatawords: 116, nec: 15 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 182,
@@ -507,7 +528,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 3, ntotalwords: 58, ndatawords: 36, nec: 11 },
           { nec_block: 2, ntotalwords: 59, ndatawords: 37, nec: 11 },
-        ]
+        ],
       },
       {
         ndatawords: 132,
@@ -516,7 +537,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 36, ndatawords: 16, nec: 10 },
           { nec_block: 4, ntotalwords: 37, ndatawords: 17, nec: 10 },
-        ]
+        ],
       },
       {
         ndatawords: 100,
@@ -525,11 +546,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 36, ndatawords: 12, nec: 12 },
           { nec_block: 4, ntotalwords: 37, ndatawords: 13, nec: 12 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 3,
-    alignment_pos: [6, 26, 46, 0, 0, 0, 0]
+    alignment_pos: [6, 26, 46, 0, 0, 0, 0],
   },
   {
     version: 10,
@@ -545,7 +566,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 2, ntotalwords: 86, ndatawords: 68, nec: 9 },
           { nec_block: 2, ntotalwords: 87, ndatawords: 69, nec: 9 },
-        ]
+        ],
       },
       {
         ndatawords: 216,
@@ -554,7 +575,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 69, ndatawords: 43, nec: 13 },
           { nec_block: 1, ntotalwords: 70, ndatawords: 44, nec: 13 },
-        ]
+        ],
       },
       {
         ndatawords: 154,
@@ -563,7 +584,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 6, ntotalwords: 43, ndatawords: 19, nec: 12 },
           { nec_block: 2, ntotalwords: 44, ndatawords: 20, nec: 12 },
-        ]
+        ],
       },
       {
         ndatawords: 122,
@@ -572,11 +593,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 6, ntotalwords: 43, ndatawords: 15, nec: 14 },
           { nec_block: 2, ntotalwords: 44, ndatawords: 16, nec: 14 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 3,
-    alignment_pos: [6, 28, 50, 0, 0, 0, 0]
+    alignment_pos: [6, 28, 50, 0, 0, 0, 0],
   },
   {
     version: 11,
@@ -592,7 +613,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 101, ndatawords: 81, nec: 10 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 254,
@@ -601,7 +622,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 1, ntotalwords: 80, ndatawords: 50, nec: 15 },
           { nec_block: 4, ntotalwords: 81, ndatawords: 51, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 180,
@@ -610,7 +631,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 50, ndatawords: 22, nec: 14 },
           { nec_block: 4, ntotalwords: 51, ndatawords: 23, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 140,
@@ -619,11 +640,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 3, ntotalwords: 36, ndatawords: 12, nec: 12 },
           { nec_block: 8, ntotalwords: 37, ndatawords: 13, nec: 12 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 3,
-    alignment_pos: [6, 30, 54, 0, 0, 0, 0]
+    alignment_pos: [6, 30, 54, 0, 0, 0, 0],
   },
   {
     version: 12,
@@ -639,7 +660,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 2, ntotalwords: 116, ndatawords: 92, nec: 12 },
           { nec_block: 2, ntotalwords: 117, ndatawords: 93, nec: 12 },
-        ]
+        ],
       },
       {
         ndatawords: 290,
@@ -648,7 +669,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 6, ntotalwords: 58, ndatawords: 36, nec: 11 },
           { nec_block: 2, ntotalwords: 59, ndatawords: 37, nec: 11 },
-        ]
+        ],
       },
       {
         ndatawords: 206,
@@ -657,7 +678,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 46, ndatawords: 20, nec: 13 },
           { nec_block: 6, ntotalwords: 47, ndatawords: 21, nec: 13 },
-        ]
+        ],
       },
       {
         ndatawords: 158,
@@ -666,11 +687,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 7, ntotalwords: 42, ndatawords: 14, nec: 14 },
           { nec_block: 4, ntotalwords: 43, ndatawords: 15, nec: 14 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 3,
-    alignment_pos: [6, 32, 58, 0, 0, 0, 0]
+    alignment_pos: [6, 32, 58, 0, 0, 0, 0],
   },
   {
     version: 13,
@@ -686,7 +707,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 133, ndatawords: 107, nec: 13 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 334,
@@ -695,7 +716,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 8, ntotalwords: 59, ndatawords: 37, nec: 11 },
           { nec_block: 1, ntotalwords: 60, ndatawords: 38, nec: 11 },
-        ]
+        ],
       },
       {
         ndatawords: 244,
@@ -704,7 +725,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 8, ntotalwords: 44, ndatawords: 20, nec: 12 },
           { nec_block: 4, ntotalwords: 45, ndatawords: 21, nec: 12 },
-        ]
+        ],
       },
       {
         ndatawords: 180,
@@ -713,11 +734,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 12, ntotalwords: 33, ndatawords: 11, nec: 11 },
           { nec_block: 4, ntotalwords: 34, ndatawords: 12, nec: 11 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 3,
-    alignment_pos: [6, 34, 62, 0, 0, 0, 0]
+    alignment_pos: [6, 34, 62, 0, 0, 0, 0],
   },
   {
     version: 14,
@@ -733,7 +754,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 3, ntotalwords: 145, ndatawords: 115, nec: 15 },
           { nec_block: 1, ntotalwords: 146, ndatawords: 116, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 365,
@@ -742,7 +763,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 64, ndatawords: 40, nec: 12 },
           { nec_block: 5, ntotalwords: 65, ndatawords: 41, nec: 12 },
-        ]
+        ],
       },
       {
         ndatawords: 261,
@@ -751,7 +772,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 11, ntotalwords: 36, ndatawords: 16, nec: 10 },
           { nec_block: 5, ntotalwords: 37, ndatawords: 17, nec: 10 },
-        ]
+        ],
       },
       {
         ndatawords: 197,
@@ -760,11 +781,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 11, ntotalwords: 36, ndatawords: 12, nec: 12 },
           { nec_block: 5, ntotalwords: 37, ndatawords: 13, nec: 12 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 4,
-    alignment_pos: [6, 26, 46, 66, 0, 0, 0]
+    alignment_pos: [6, 26, 46, 66, 0, 0, 0],
   },
   {
     version: 15,
@@ -780,7 +801,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 5, ntotalwords: 109, ndatawords: 87, nec: 11 },
           { nec_block: 1, ntotalwords: 110, ndatawords: 88, nec: 11 },
-        ]
+        ],
       },
       {
         ndatawords: 415,
@@ -789,7 +810,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 5, ntotalwords: 65, ndatawords: 41, nec: 12 },
           { nec_block: 5, ntotalwords: 66, ndatawords: 42, nec: 12 },
-        ]
+        ],
       },
       {
         ndatawords: 295,
@@ -798,7 +819,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 5, ntotalwords: 54, ndatawords: 24, nec: 15 },
           { nec_block: 7, ntotalwords: 55, ndatawords: 25, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 223,
@@ -807,11 +828,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 11, ntotalwords: 36, ndatawords: 12, nec: 12 },
           { nec_block: 7, ntotalwords: 37, ndatawords: 13, nec: 12 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 4,
-    alignment_pos: [6, 26, 48, 70, 0, 0, 0]
+    alignment_pos: [6, 26, 48, 70, 0, 0, 0],
   },
   {
     version: 16,
@@ -827,7 +848,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 5, ntotalwords: 122, ndatawords: 98, nec: 12 },
           { nec_block: 1, ntotalwords: 123, ndatawords: 99, nec: 12 },
-        ]
+        ],
       },
       {
         ndatawords: 453,
@@ -836,7 +857,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 7, ntotalwords: 73, ndatawords: 45, nec: 14 },
           { nec_block: 3, ntotalwords: 74, ndatawords: 46, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 325,
@@ -845,7 +866,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 15, ntotalwords: 43, ndatawords: 19, nec: 12 },
           { nec_block: 2, ntotalwords: 44, ndatawords: 20, nec: 12 },
-        ]
+        ],
       },
       {
         ndatawords: 253,
@@ -854,11 +875,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 3, ntotalwords: 45, ndatawords: 15, nec: 15 },
           { nec_block: 13, ntotalwords: 46, ndatawords: 16, nec: 15 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 4,
-    alignment_pos: [6, 26, 50, 74, 0, 0, 0]
+    alignment_pos: [6, 26, 50, 74, 0, 0, 0],
   },
   {
     version: 17,
@@ -874,7 +895,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 1, ntotalwords: 135, ndatawords: 107, nec: 14 },
           { nec_block: 5, ntotalwords: 136, ndatawords: 108, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 507,
@@ -883,7 +904,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 10, ntotalwords: 74, ndatawords: 46, nec: 14 },
           { nec_block: 1, ntotalwords: 75, ndatawords: 47, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 367,
@@ -892,7 +913,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 1, ntotalwords: 50, ndatawords: 22, nec: 14 },
           { nec_block: 15, ntotalwords: 51, ndatawords: 23, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 283,
@@ -901,11 +922,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 2, ntotalwords: 42, ndatawords: 14, nec: 14 },
           { nec_block: 17, ntotalwords: 43, ndatawords: 15, nec: 14 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 4,
-    alignment_pos: [6, 30, 54, 78, 0, 0, 0]
+    alignment_pos: [6, 30, 54, 78, 0, 0, 0],
   },
   {
     version: 18,
@@ -921,7 +942,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 5, ntotalwords: 150, ndatawords: 120, nec: 15 },
           { nec_block: 1, ntotalwords: 151, ndatawords: 121, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 563,
@@ -930,7 +951,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 9, ntotalwords: 69, ndatawords: 43, nec: 13 },
           { nec_block: 4, ntotalwords: 70, ndatawords: 44, nec: 13 },
-        ]
+        ],
       },
       {
         ndatawords: 397,
@@ -939,7 +960,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 17, ntotalwords: 50, ndatawords: 22, nec: 14 },
           { nec_block: 1, ntotalwords: 51, ndatawords: 23, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 313,
@@ -948,11 +969,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 2, ntotalwords: 42, ndatawords: 14, nec: 14 },
           { nec_block: 19, ntotalwords: 43, ndatawords: 15, nec: 14 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 4,
-    alignment_pos: [6, 30, 56, 82, 0, 0, 0]
+    alignment_pos: [6, 30, 56, 82, 0, 0, 0],
   },
   {
     version: 19,
@@ -968,7 +989,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 3, ntotalwords: 141, ndatawords: 113, nec: 14 },
           { nec_block: 4, ntotalwords: 142, ndatawords: 114, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 627,
@@ -977,7 +998,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 3, ntotalwords: 70, ndatawords: 44, nec: 13 },
           { nec_block: 11, ntotalwords: 71, ndatawords: 45, nec: 13 },
-        ]
+        ],
       },
       {
         ndatawords: 445,
@@ -986,7 +1007,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 17, ntotalwords: 47, ndatawords: 21, nec: 13 },
           { nec_block: 4, ntotalwords: 48, ndatawords: 22, nec: 13 },
-        ]
+        ],
       },
       {
         ndatawords: 341,
@@ -995,11 +1016,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 9, ntotalwords: 39, ndatawords: 13, nec: 13 },
           { nec_block: 16, ntotalwords: 40, ndatawords: 14, nec: 13 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 4,
-    alignment_pos: [6, 30, 58, 86, 0, 0, 0]
+    alignment_pos: [6, 30, 58, 86, 0, 0, 0],
   },
   {
     version: 20,
@@ -1015,7 +1036,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 3, ntotalwords: 135, ndatawords: 107, nec: 14 },
           { nec_block: 5, ntotalwords: 136, ndatawords: 108, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 669,
@@ -1024,7 +1045,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 3, ntotalwords: 67, ndatawords: 41, nec: 13 },
           { nec_block: 13, ntotalwords: 68, ndatawords: 42, nec: 13 },
-        ]
+        ],
       },
       {
         ndatawords: 485,
@@ -1033,7 +1054,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 15, ntotalwords: 54, ndatawords: 24, nec: 15 },
           { nec_block: 5, ntotalwords: 55, ndatawords: 25, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 385,
@@ -1042,11 +1063,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 15, ntotalwords: 43, ndatawords: 15, nec: 14 },
           { nec_block: 10, ntotalwords: 44, ndatawords: 16, nec: 14 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 4,
-    alignment_pos: [6, 34, 62, 90, 0, 0, 0]
+    alignment_pos: [6, 34, 62, 90, 0, 0, 0],
   },
   {
     version: 21,
@@ -1062,7 +1083,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 144, ndatawords: 116, nec: 14 },
           { nec_block: 4, ntotalwords: 145, ndatawords: 117, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 714,
@@ -1071,7 +1092,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 17, ntotalwords: 68, ndatawords: 42, nec: 13 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 512,
@@ -1080,7 +1101,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 17, ntotalwords: 50, ndatawords: 22, nec: 14 },
           { nec_block: 6, ntotalwords: 51, ndatawords: 23, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 406,
@@ -1089,11 +1110,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 19, ntotalwords: 46, ndatawords: 16, nec: 15 },
           { nec_block: 6, ntotalwords: 47, ndatawords: 17, nec: 15 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 5,
-    alignment_pos: [6, 28, 50, 72, 94, 0, 0]
+    alignment_pos: [6, 28, 50, 72, 94, 0, 0],
   },
   {
     version: 22,
@@ -1109,7 +1130,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 2, ntotalwords: 139, ndatawords: 111, nec: 14 },
           { nec_block: 7, ntotalwords: 140, ndatawords: 112, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 782,
@@ -1118,7 +1139,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 17, ntotalwords: 74, ndatawords: 46, nec: 14 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 568,
@@ -1127,7 +1148,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 7, ntotalwords: 54, ndatawords: 24, nec: 15 },
           { nec_block: 16, ntotalwords: 55, ndatawords: 25, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 442,
@@ -1136,11 +1157,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 34, ntotalwords: 37, ndatawords: 13, nec: 13 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 5,
-    alignment_pos: [6, 26, 50, 74, 98, 0, 0]
+    alignment_pos: [6, 26, 50, 74, 98, 0, 0],
   },
   {
     version: 23,
@@ -1156,7 +1177,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 151, ndatawords: 121, nec: 15 },
           { nec_block: 5, ntotalwords: 152, ndatawords: 122, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 860,
@@ -1165,7 +1186,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 75, ndatawords: 47, nec: 14 },
           { nec_block: 14, ntotalwords: 76, ndatawords: 48, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 614,
@@ -1174,7 +1195,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 11, ntotalwords: 54, ndatawords: 24, nec: 15 },
           { nec_block: 14, ntotalwords: 55, ndatawords: 25, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 464,
@@ -1183,11 +1204,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 16, ntotalwords: 45, ndatawords: 15, nec: 15 },
           { nec_block: 14, ntotalwords: 46, ndatawords: 16, nec: 15 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 5,
-    alignment_pos: [6, 30, 54, 78, 102, 0, 0]
+    alignment_pos: [6, 30, 54, 78, 102, 0, 0],
   },
   {
     version: 24,
@@ -1203,7 +1224,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 6, ntotalwords: 147, ndatawords: 117, nec: 15 },
           { nec_block: 4, ntotalwords: 148, ndatawords: 118, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 914,
@@ -1212,7 +1233,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 6, ntotalwords: 73, ndatawords: 45, nec: 14 },
           { nec_block: 14, ntotalwords: 74, ndatawords: 46, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 664,
@@ -1221,7 +1242,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 11, ntotalwords: 54, ndatawords: 24, nec: 15 },
           { nec_block: 16, ntotalwords: 55, ndatawords: 25, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 514,
@@ -1230,11 +1251,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 30, ntotalwords: 46, ndatawords: 16, nec: 15 },
           { nec_block: 2, ntotalwords: 47, ndatawords: 17, nec: 15 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 5,
-    alignment_pos: [6, 28, 54, 80, 106, 0, 0]
+    alignment_pos: [6, 28, 54, 80, 106, 0, 0],
   },
   {
     version: 25,
@@ -1250,7 +1271,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 8, ntotalwords: 132, ndatawords: 106, nec: 13 },
           { nec_block: 4, ntotalwords: 133, ndatawords: 107, nec: 13 },
-        ]
+        ],
       },
       {
         ndatawords: 1000,
@@ -1259,7 +1280,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 8, ntotalwords: 75, ndatawords: 47, nec: 14 },
           { nec_block: 13, ntotalwords: 76, ndatawords: 48, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 718,
@@ -1268,7 +1289,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 7, ntotalwords: 54, ndatawords: 24, nec: 15 },
           { nec_block: 22, ntotalwords: 55, ndatawords: 25, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 538,
@@ -1277,11 +1298,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 22, ntotalwords: 45, ndatawords: 15, nec: 15 },
           { nec_block: 13, ntotalwords: 46, ndatawords: 16, nec: 15 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 5,
-    alignment_pos: [6, 32, 58, 84, 110, 0, 0]
+    alignment_pos: [6, 32, 58, 84, 110, 0, 0],
   },
   {
     version: 26,
@@ -1297,7 +1318,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 10, ntotalwords: 142, ndatawords: 114, nec: 14 },
           { nec_block: 2, ntotalwords: 143, ndatawords: 115, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 1062,
@@ -1306,7 +1327,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 19, ntotalwords: 74, ndatawords: 46, nec: 14 },
           { nec_block: 4, ntotalwords: 75, ndatawords: 47, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 754,
@@ -1315,7 +1336,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 28, ntotalwords: 50, ndatawords: 22, nec: 14 },
           { nec_block: 6, ntotalwords: 51, ndatawords: 23, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 596,
@@ -1324,11 +1345,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 33, ntotalwords: 46, ndatawords: 16, nec: 15 },
           { nec_block: 4, ntotalwords: 47, ndatawords: 17, nec: 15 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 5,
-    alignment_pos: [6, 30, 58, 86, 114, 0, 0]
+    alignment_pos: [6, 30, 58, 86, 114, 0, 0],
   },
   {
     version: 27,
@@ -1344,7 +1365,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 8, ntotalwords: 152, ndatawords: 122, nec: 15 },
           { nec_block: 4, ntotalwords: 153, ndatawords: 123, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 1128,
@@ -1353,7 +1374,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 22, ntotalwords: 73, ndatawords: 45, nec: 14 },
           { nec_block: 3, ntotalwords: 74, ndatawords: 46, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 808,
@@ -1362,7 +1383,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 8, ntotalwords: 53, ndatawords: 23, nec: 15 },
           { nec_block: 26, ntotalwords: 54, ndatawords: 24, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 628,
@@ -1371,11 +1392,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 12, ntotalwords: 45, ndatawords: 15, nec: 15 },
           { nec_block: 28, ntotalwords: 46, ndatawords: 16, nec: 15 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 5,
-    alignment_pos: [6, 34, 62, 90, 118, 0, 0]
+    alignment_pos: [6, 34, 62, 90, 118, 0, 0],
   },
   {
     version: 28,
@@ -1391,7 +1412,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 3, ntotalwords: 147, ndatawords: 117, nec: 15 },
           { nec_block: 10, ntotalwords: 148, ndatawords: 118, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 1193,
@@ -1400,7 +1421,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 3, ntotalwords: 73, ndatawords: 45, nec: 14 },
           { nec_block: 23, ntotalwords: 74, ndatawords: 46, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 871,
@@ -1409,7 +1430,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 54, ndatawords: 24, nec: 15 },
           { nec_block: 31, ntotalwords: 55, ndatawords: 25, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 661,
@@ -1418,11 +1439,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 11, ntotalwords: 45, ndatawords: 15, nec: 15 },
           { nec_block: 31, ntotalwords: 46, ndatawords: 16, nec: 15 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 6,
-    alignment_pos: [6, 26, 50, 74, 98, 122, 0]
+    alignment_pos: [6, 26, 50, 74, 98, 122, 0],
   },
   {
     version: 29,
@@ -1438,7 +1459,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 7, ntotalwords: 146, ndatawords: 116, nec: 15 },
           { nec_block: 7, ntotalwords: 147, ndatawords: 117, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 1267,
@@ -1447,7 +1468,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 21, ntotalwords: 73, ndatawords: 45, nec: 14 },
           { nec_block: 7, ntotalwords: 74, ndatawords: 46, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 911,
@@ -1456,7 +1477,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 1, ntotalwords: 53, ndatawords: 23, nec: 15 },
           { nec_block: 37, ntotalwords: 54, ndatawords: 24, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 701,
@@ -1465,11 +1486,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 19, ntotalwords: 45, ndatawords: 15, nec: 15 },
           { nec_block: 26, ntotalwords: 46, ndatawords: 16, nec: 15 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 6,
-    alignment_pos: [6, 30, 54, 78, 102, 126, 0]
+    alignment_pos: [6, 30, 54, 78, 102, 126, 0],
   },
   {
     version: 30,
@@ -1485,7 +1506,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 5, ntotalwords: 145, ndatawords: 115, nec: 15 },
           { nec_block: 10, ntotalwords: 146, ndatawords: 116, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 1373,
@@ -1494,7 +1515,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 19, ntotalwords: 75, ndatawords: 47, nec: 14 },
           { nec_block: 10, ntotalwords: 76, ndatawords: 48, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 985,
@@ -1503,7 +1524,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 15, ntotalwords: 54, ndatawords: 24, nec: 15 },
           { nec_block: 25, ntotalwords: 55, ndatawords: 25, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 745,
@@ -1512,11 +1533,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 23, ntotalwords: 45, ndatawords: 15, nec: 15 },
           { nec_block: 25, ntotalwords: 46, ndatawords: 16, nec: 15 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 6,
-    alignment_pos: [6, 26, 52, 78, 104, 130, 0]
+    alignment_pos: [6, 26, 52, 78, 104, 130, 0],
   },
   {
     version: 31,
@@ -1532,7 +1553,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 13, ntotalwords: 145, ndatawords: 115, nec: 15 },
           { nec_block: 3, ntotalwords: 146, ndatawords: 116, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 1455,
@@ -1541,7 +1562,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 2, ntotalwords: 74, ndatawords: 46, nec: 14 },
           { nec_block: 29, ntotalwords: 75, ndatawords: 47, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 1033,
@@ -1550,7 +1571,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 42, ntotalwords: 54, ndatawords: 24, nec: 15 },
           { nec_block: 1, ntotalwords: 55, ndatawords: 25, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 793,
@@ -1559,11 +1580,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 23, ntotalwords: 45, ndatawords: 15, nec: 15 },
           { nec_block: 28, ntotalwords: 46, ndatawords: 16, nec: 15 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 6,
-    alignment_pos: [6, 30, 56, 82, 108, 134, 0]
+    alignment_pos: [6, 30, 56, 82, 108, 134, 0],
   },
   {
     version: 32,
@@ -1579,7 +1600,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 17, ntotalwords: 145, ndatawords: 115, nec: 15 },
           { nec_block: 0, ntotalwords: 0, ndatawords: 0, nec: 0 },
-        ]
+        ],
       },
       {
         ndatawords: 1541,
@@ -1588,7 +1609,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 10, ntotalwords: 74, ndatawords: 46, nec: 14 },
           { nec_block: 23, ntotalwords: 75, ndatawords: 47, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 1115,
@@ -1597,7 +1618,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 10, ntotalwords: 54, ndatawords: 24, nec: 15 },
           { nec_block: 35, ntotalwords: 55, ndatawords: 25, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 845,
@@ -1606,11 +1627,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 19, ntotalwords: 45, ndatawords: 15, nec: 15 },
           { nec_block: 35, ntotalwords: 46, ndatawords: 16, nec: 15 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 6,
-    alignment_pos: [6, 34, 60, 86, 112, 138, 0]
+    alignment_pos: [6, 34, 60, 86, 112, 138, 0],
   },
   {
     version: 33,
@@ -1626,7 +1647,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 17, ntotalwords: 145, ndatawords: 115, nec: 15 },
           { nec_block: 1, ntotalwords: 146, ndatawords: 116, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 1631,
@@ -1635,7 +1656,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 14, ntotalwords: 74, ndatawords: 46, nec: 14 },
           { nec_block: 21, ntotalwords: 75, ndatawords: 47, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 1171,
@@ -1644,7 +1665,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 29, ntotalwords: 54, ndatawords: 24, nec: 15 },
           { nec_block: 19, ntotalwords: 55, ndatawords: 25, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 901,
@@ -1653,11 +1674,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 11, ntotalwords: 45, ndatawords: 15, nec: 15 },
           { nec_block: 46, ntotalwords: 46, ndatawords: 16, nec: 15 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 6,
-    alignment_pos: [6, 30, 58, 86, 114, 142, 0]
+    alignment_pos: [6, 30, 58, 86, 114, 142, 0],
   },
   {
     version: 34,
@@ -1673,7 +1694,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 13, ntotalwords: 145, ndatawords: 115, nec: 15 },
           { nec_block: 6, ntotalwords: 146, ndatawords: 116, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 1725,
@@ -1682,7 +1703,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 14, ntotalwords: 74, ndatawords: 46, nec: 14 },
           { nec_block: 23, ntotalwords: 75, ndatawords: 47, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 1231,
@@ -1691,7 +1712,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 44, ntotalwords: 54, ndatawords: 24, nec: 15 },
           { nec_block: 7, ntotalwords: 55, ndatawords: 25, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 961,
@@ -1700,11 +1721,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 59, ntotalwords: 46, ndatawords: 16, nec: 15 },
           { nec_block: 1, ntotalwords: 47, ndatawords: 17, nec: 15 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 6,
-    alignment_pos: [6, 34, 62, 90, 118, 146, 0]
+    alignment_pos: [6, 34, 62, 90, 118, 146, 0],
   },
   {
     version: 35,
@@ -1720,7 +1741,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 12, ntotalwords: 151, ndatawords: 121, nec: 15 },
           { nec_block: 7, ntotalwords: 152, ndatawords: 122, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 1812,
@@ -1729,7 +1750,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 12, ntotalwords: 75, ndatawords: 47, nec: 14 },
           { nec_block: 26, ntotalwords: 76, ndatawords: 48, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 1286,
@@ -1738,7 +1759,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 39, ntotalwords: 54, ndatawords: 24, nec: 15 },
           { nec_block: 14, ntotalwords: 55, ndatawords: 25, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 986,
@@ -1747,11 +1768,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 22, ntotalwords: 45, ndatawords: 15, nec: 15 },
           { nec_block: 41, ntotalwords: 46, ndatawords: 16, nec: 15 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 7,
-    alignment_pos: [6, 30, 54, 78, 102, 126, 150]
+    alignment_pos: [6, 30, 54, 78, 102, 126, 150],
   },
   {
     version: 36,
@@ -1767,7 +1788,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 6, ntotalwords: 151, ndatawords: 121, nec: 15 },
           { nec_block: 14, ntotalwords: 152, ndatawords: 122, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 1914,
@@ -1776,7 +1797,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 6, ntotalwords: 75, ndatawords: 47, nec: 14 },
           { nec_block: 34, ntotalwords: 76, ndatawords: 48, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 1354,
@@ -1785,7 +1806,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 46, ntotalwords: 54, ndatawords: 24, nec: 15 },
           { nec_block: 10, ntotalwords: 55, ndatawords: 25, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 1054,
@@ -1794,11 +1815,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 2, ntotalwords: 45, ndatawords: 15, nec: 15 },
           { nec_block: 64, ntotalwords: 46, ndatawords: 16, nec: 15 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 7,
-    alignment_pos: [6, 24, 50, 76, 102, 128, 154]
+    alignment_pos: [6, 24, 50, 76, 102, 128, 154],
   },
   {
     version: 37,
@@ -1814,7 +1835,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 17, ntotalwords: 152, ndatawords: 122, nec: 15 },
           { nec_block: 4, ntotalwords: 153, ndatawords: 123, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 1992,
@@ -1823,7 +1844,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 29, ntotalwords: 74, ndatawords: 46, nec: 14 },
           { nec_block: 14, ntotalwords: 75, ndatawords: 47, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 1426,
@@ -1832,7 +1853,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 49, ntotalwords: 54, ndatawords: 24, nec: 15 },
           { nec_block: 10, ntotalwords: 55, ndatawords: 25, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 1096,
@@ -1841,11 +1862,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 24, ntotalwords: 45, ndatawords: 15, nec: 15 },
           { nec_block: 46, ntotalwords: 46, ndatawords: 16, nec: 15 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 7,
-    alignment_pos: [6, 28, 54, 80, 106, 132, 158]
+    alignment_pos: [6, 28, 54, 80, 106, 132, 158],
   },
   {
     version: 38,
@@ -1861,7 +1882,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 4, ntotalwords: 152, ndatawords: 122, nec: 15 },
           { nec_block: 18, ntotalwords: 153, ndatawords: 123, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 2102,
@@ -1870,7 +1891,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 13, ntotalwords: 74, ndatawords: 46, nec: 14 },
           { nec_block: 32, ntotalwords: 75, ndatawords: 47, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 1502,
@@ -1879,7 +1900,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 48, ntotalwords: 54, ndatawords: 24, nec: 15 },
           { nec_block: 14, ntotalwords: 55, ndatawords: 25, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 1142,
@@ -1888,11 +1909,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 42, ntotalwords: 45, ndatawords: 15, nec: 15 },
           { nec_block: 32, ntotalwords: 46, ndatawords: 16, nec: 15 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 7,
-    alignment_pos: [6, 32, 58, 84, 110, 136, 162]
+    alignment_pos: [6, 32, 58, 84, 110, 136, 162],
   },
   {
     version: 39,
@@ -1908,7 +1929,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 20, ntotalwords: 147, ndatawords: 117, nec: 15 },
           { nec_block: 4, ntotalwords: 148, ndatawords: 118, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 2216,
@@ -1917,7 +1938,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 40, ntotalwords: 75, ndatawords: 47, nec: 14 },
           { nec_block: 7, ntotalwords: 76, ndatawords: 48, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 1582,
@@ -1926,7 +1947,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 43, ntotalwords: 54, ndatawords: 24, nec: 15 },
           { nec_block: 22, ntotalwords: 55, ndatawords: 25, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 1222,
@@ -1935,11 +1956,11 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 10, ntotalwords: 45, ndatawords: 15, nec: 15 },
           { nec_block: 67, ntotalwords: 46, ndatawords: 16, nec: 15 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 7,
-    alignment_pos: [6, 26, 54, 82, 110, 138, 166]
+    alignment_pos: [6, 26, 54, 82, 110, 138, 166],
   },
   {
     version: 40,
@@ -1955,7 +1976,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 19, ntotalwords: 148, ndatawords: 118, nec: 15 },
           { nec_block: 6, ntotalwords: 149, ndatawords: 119, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 2334,
@@ -1964,7 +1985,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 18, ntotalwords: 75, ndatawords: 47, nec: 14 },
           { nec_block: 31, ntotalwords: 76, ndatawords: 48, nec: 14 },
-        ]
+        ],
       },
       {
         ndatawords: 1666,
@@ -1973,7 +1994,7 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 34, ntotalwords: 54, ndatawords: 24, nec: 15 },
           { nec_block: 34, ntotalwords: 55, ndatawords: 25, nec: 15 },
-        ]
+        ],
       },
       {
         ndatawords: 1276,
@@ -1982,13 +2003,15 @@ let qr_info: FixedArray[QRInfoEntry] = [
         ecb_group: [
           { nec_block: 20, ntotalwords: 45, ndatawords: 15, nec: 15 },
           { nec_block: 61, ntotalwords: 46, ndatawords: 16, nec: 15 },
-        ]
+        ],
       },
     ],
     nalignment_pos: 7,
-    alignment_pos: [6, 30, 58, 86, 114, 142, 170]
+    alignment_pos: [6, 30, 58, 86, 114, 142, 170],
   },
 ]
+
+///|
 let exp_to_fac : FixedArray[Int] = [
   1, 2, 4, 8, 16, 32, 64, 128, 29, 58, 116, 232, 205, 135, 19, 38, 76, 152, 45, 90,
   180, 117, 234, 201, 143, 3, 6, 12, 24, 48, 96, 192, 157, 39, 78, 156, 37, 74, 148,
@@ -2006,6 +2029,8 @@ let exp_to_fac : FixedArray[Int] = [
   247, 243, 251, 235, 203, 139, 11, 22, 44, 88, 176, 125, 250, 233, 207, 131, 27,
   54, 108, 216, 173, 71, 142, 1,
 ]
+
+///|
 let fac_to_exp : FixedArray[Int] = [
   0, 0, 1, 25, 2, 50, 26, 198, 3, 223, 51, 238, 27, 104, 199, 75, 4, 100, 224, 14,
   52, 141, 239, 129, 28, 193, 105, 248, 200, 8, 76, 113, 5, 138, 101, 47, 225, 36,
@@ -2023,6 +2048,8 @@ let fac_to_exp : FixedArray[Int] = [
   81, 11, 245, 22, 235, 122, 117, 44, 215, 79, 174, 213, 233, 230, 231, 173, 232,
   116, 214, 244, 234, 168, 80, 88, 175,
 ]
+
+///|
 let generator : FixedArray[FixedArray[Int]] = [
   [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -2396,6 +2423,7 @@ let generator : FixedArray[FixedArray[Int]] = [
   ],
 ]
 
+///|
 let version_info : FixedArray[Int64] = [
   -1L, -1L, -1L, -1L, -1L, -1L, -1L, 0x07c94L, 0x085bcL, 0x09a99L, 0x0a4d3L, 0x0bbf6L,
   0x0c762L, 0x0d847L, 0x0e60dL, 0x0f928L, 0x10b78L, 0x1145dL, 0x12a17L, 0x13532L,
@@ -2404,6 +2432,7 @@ let version_info : FixedArray[Int64] = [
   0x24b0bL, 0x2542eL, 0x26a64L, 0x27541L, 0x28c69L,
 ]
 
+///|
 let alnum : FixedArray[Int] = [
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 36, -1, -1, -1, 37, 38, -1, -1,
@@ -2420,6 +2449,7 @@ let alnum : FixedArray[Int] = [
   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 ]
 
+///|
 fn make_pdp_pos(dimension : Int) -> PosBox {
   PosBox::from_array([
     [0, 0],
@@ -2524,6 +2554,7 @@ fn make_pdp_pos(dimension : Int) -> PosBox {
   ])
 }
 
+///|
 fn make_timing_pos(dimension : Int) -> PosBox {
   let posbox = PosBox::new()
   for i = 8; i <= dimension - 9; i = i + 2 {
@@ -2535,6 +2566,7 @@ fn make_timing_pos(dimension : Int) -> PosBox {
   posbox
 }
 
+///|
 fn make_function_pattern_pos(
   version : Int,
   dimension : Int,
@@ -2604,35 +2636,46 @@ fn make_function_pattern_pos(
   function_pattern
 }
 
-fn make_alignment_pos(ap: Array[Int], nap: Int, dimension: Int) -> PosBox {
+///|
+fn make_alignment_pos(
+  ap : FixedArray[Int],
+  nap : Int,
+  dimension : Int
+) -> PosBox {
   let ap_box = PosBox::new()
-
   for i in 0..<nap {
     for j in 0..<nap {
-      if ((ap[i] == 6 && ap[j] == 6)|| (ap[i] == 6 && ap[j] == dimension - 7)|| (ap[i] == dimension - 7 && ap[j] == dimension - 7)) {
-        continue;
+      if (ap[i] == 6 && ap[j] == 6) ||
+        (ap[i] == 6 && ap[j] == dimension - 7) ||
+        (ap[i] == dimension - 7 && ap[j] == dimension - 7) {
+        continue
+      } else {
+        ap_box.add_pos(Pos::new(ap[i], ap[j]))
       }
-      else
-      {
-        ap_box.add_pos(Pos::new(ap[i], ap[j]));
-      } //center
     }
-  }
-
+  } //center
   for pos in ap_box.box {
-    ap_box.add_rect(Pos::new(pos.x - 2, pos.y + 2),
-      Pos::new(pos.x + 2, pos.y + 2));
-    ap_box.add_rect(Pos::new(pos.x - 2, pos.y + 1),
-      Pos::new(pos.x - 2, pos.y - 2));
-    ap_box.add_rect(Pos::new(pos.x - 1, pos.y - 2),
-      Pos::new(pos.x + 2, pos.y - 2));
-    ap_box.add_rect(Pos::new(pos.x + 2, pos.y - 1),
-      Pos::new(pos.x + 2, pos.y + 1));
+    ap_box.add_rect(
+      Pos::new(pos.x - 2, pos.y + 2),
+      Pos::new(pos.x + 2, pos.y + 2),
+    )
+    ap_box.add_rect(
+      Pos::new(pos.x - 2, pos.y + 1),
+      Pos::new(pos.x - 2, pos.y - 2),
+    )
+    ap_box.add_rect(
+      Pos::new(pos.x - 1, pos.y - 2),
+      Pos::new(pos.x + 2, pos.y - 2),
+    )
+    ap_box.add_rect(
+      Pos::new(pos.x + 2, pos.y - 1),
+      Pos::new(pos.x + 2, pos.y + 1),
+    )
   }
-
-  ap_box;
+  ap_box
 }
 
+///|
 fn make_format_pos(dimension : Int) -> (PosBox, PosBox) {
   (
     PosBox::from_array([
@@ -2672,6 +2715,7 @@ fn make_format_pos(dimension : Int) -> (PosBox, PosBox) {
   )
 }
 
+///|
 fn make_version_pos(dimension : Int) -> (PosBox, PosBox) {
   (
     PosBox::from_array([
